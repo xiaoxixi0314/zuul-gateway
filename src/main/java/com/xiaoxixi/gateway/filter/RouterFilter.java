@@ -37,7 +37,7 @@ public class RouterFilter extends ZuulFilter {
     private DiscoveryService discoveryService;
 
     @Value("${register.service.prefix}")
-    private String registerServicePrefix;
+    private String servicePrefix;
 
     private static final OkHttpClient httpClient = new OkHttpClient.Builder().build();
     private static final String SERVICE_NAME_HEADER = "X-request-to";
@@ -68,7 +68,6 @@ public class RouterFilter extends ZuulFilter {
 
             String method = request.getMethod();
             String serviceName = request.getHeader(SERVICE_NAME_HEADER);
-            String servicePrefix = request.getHeader(registerServicePrefix);
             ServiceProperty service = discoveryService.discoveryService(servicePrefix, serviceName);
             String uri = this.helper.buildZuulRequestURI(request);
 
