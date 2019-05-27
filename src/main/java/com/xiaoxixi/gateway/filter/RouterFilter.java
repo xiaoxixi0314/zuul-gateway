@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 import com.xiaoxixi.gateway.constant.GatewayConstants;
+import com.xiaoxixi.gateway.discovery.DiscoveryLocalService;
 import com.xiaoxixi.service.register.DiscoveryService;
 import com.xiaoxixi.service.register.ServiceProperty;
 import okhttp3.*;
@@ -32,10 +33,7 @@ public class RouterFilter extends ZuulFilter {
     private static final  ProxyRequestHelper helper = new ProxyRequestHelper();
 
     @Autowired
-    private DiscoveryService discoveryService;
-
-    @Value("${register.service.prefix}")
-    private String servicePrefix;
+    private DiscoveryLocalService discoveryLocalService;
 
     @Autowired
     private OkHttpClient okHttpClient;
@@ -63,18 +61,12 @@ public class RouterFilter extends ZuulFilter {
 
             RequestContext context = RequestContext.getCurrentContext();
             HttpServletRequest request = context.getRequest();
-            Long startTime = System.currentTimeMillis();
             String method = request.getMethod();
-            String serviceName = request.getHeader(GatewayConstants.SERVICE_NAME_HEADER);
-            LOGGER.info(">>>> start to discovery service, service name:{}", serviceName);
-            ServiceProperty service = discoveryService.discoveryService(servicePrefix, serviceName);
-            LOGGER.info("<<<<find service:{}", JSON.toJSONString(service));
-            String uri = request.getRequestURI();
-            LOGGER.info("remote service uri is:{}", uri);
-            String serviceUri = buildLocalServiceUrl(service, uri);
-            LOGGER.info("local service uri is:{},discovery service cost:{}ms", serviceUri, System.currentTimeMillis() - startTime);
 
-            startTime = System.currentTimeMillis();
+            // discovery service path
+            String serviceUri =discoveryLocalService.discoveryLocalService(request);
+
+            Long startTime = System.currentTimeMillis();
             Headers.Builder headers = new Headers.Builder();
             Enumeration<String> headerNames = request.getHeaderNames();
             while (headerNames.hasMoreElements()) {
@@ -123,15 +115,5 @@ public class RouterFilter extends ZuulFilter {
     }
 
 
-    /**
-     * build local service url
-     * @param service
-     * @param remoteUri
-     * @return
-     */
-    private String buildLocalServiceUrl(ServiceProperty service, String remoteUri) {
-        String localServiceBindUrl = service.getServiceBindUrl();
-        String remoteUriSuffix = remoteUri.substring(GatewayConstants.SERVICE_PREFIX.length(), remoteUri.length());
-        return localServiceBindUrl + remoteUriSuffix;
-    }
+
 }

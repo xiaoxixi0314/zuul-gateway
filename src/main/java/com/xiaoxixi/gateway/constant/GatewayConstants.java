@@ -10,4 +10,8 @@ public class GatewayConstants {
 
     public static final String ALL_SERVICE_PATH = "/**";
 
+    public static final String DEGRADE_SERVICE_PREFIX_KEY = "degrade_service_path";
+
+    public static final String CURRENT_LIMITINT_PREFIX_KEY = "current_limiting";
+
 }
