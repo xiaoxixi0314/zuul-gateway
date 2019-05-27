@@ -1,6 +1,6 @@
 package com.xiaoxixi.gateway.exception;
 
-public class DiscoveryServiceException extends RuntimeException {
+public class DiscoveryServiceException extends Exception {
 
     public DiscoveryServiceException() {
         super("discovery service error");

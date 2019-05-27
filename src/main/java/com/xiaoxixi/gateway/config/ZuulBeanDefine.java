@@ -3,9 +3,10 @@ package com.xiaoxixi.gateway.config;
 import com.xiaoxixi.gateway.constant.GatewayConstants;
 import com.xiaoxixi.service.register.DiscoveryService;
 import com.xiaoxixi.service.register.ServiceRegisterConfig;
+import com.xiaoxixi.service.register.redis.RedisService;
 import okhttp3.OkHttpClient;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelper;
+import org.springframework.boot.autoconfigure.cache.CacheProperties;
 import org.springframework.cloud.netflix.zuul.filters.Route;
 import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
 import org.springframework.context.annotation.Bean;
@@ -32,6 +33,11 @@ public class ZuulBeanDefine {
     @Bean
     public DiscoveryService discoveryService(){
         return serviceRegisterConfig.getDiscoveryService();
+    }
+
+    @Bean
+    public RedisService redisService() {
+        return serviceRegisterConfig.getRedisService();
     }
 
     @Bean

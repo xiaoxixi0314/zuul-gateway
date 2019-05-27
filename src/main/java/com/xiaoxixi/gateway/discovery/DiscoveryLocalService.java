@@ -1,5 +1,7 @@
 package com.xiaoxixi.gateway.discovery;
 
+import com.xiaoxixi.gateway.exception.DiscoveryServiceException;
+
 import javax.servlet.http.HttpServletRequest;
 
 /**
@@ -12,6 +14,6 @@ public interface DiscoveryLocalService {
      * @param request
      * @return
      */
-    String discoveryLocalService(HttpServletRequest request);
+    String discoveryLocalService(HttpServletRequest request) throws DiscoveryServiceException;
 
 }

@@ -1,13 +1,19 @@
 package com.xiaoxixi.gateway.limit;
 
-import org.springframework.stereotype.Service;
+import com.xiaoxixi.gateway.model.RequestTokenConfig;
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
- * current limiting service implement
+ * current limiting service implements
  */
-@Service
 public interface CurrentLimitingService {
 
-    boolean hasRequstToken(HttpServletRequest request);
+    boolean hasRequestToken(HttpServletRequest request);
+
+    void configRequestTokenForUri(RequestTokenConfig config);
+
+    List<RequestTokenConfig> getAllRequestTokenConfig();
+
+    RequestTokenConfig getRequestTokenConfig(HttpServletRequest request);
 }

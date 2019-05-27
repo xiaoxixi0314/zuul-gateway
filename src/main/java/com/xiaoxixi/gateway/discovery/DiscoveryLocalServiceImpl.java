@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
 import javax.servlet.http.HttpServletRequest;
 import java.util.Objects;
 
@@ -31,7 +30,7 @@ public class DiscoveryLocalServiceImpl implements DiscoveryLocalService{
     private String servicePrefix;
 
     @Override
-    public String discoveryLocalService(HttpServletRequest request) {
+    public String discoveryLocalService(HttpServletRequest request) throws DiscoveryServiceException{
         String serviceName = request.getHeader(GatewayConstants.SERVICE_NAME_HEADER);
         if (StringUtils.isEmpty(serviceName)) {
             throw new ParamsException("service name can't be null or empty, please check request has [X-request-to] header.");
@@ -40,9 +39,8 @@ public class DiscoveryLocalServiceImpl implements DiscoveryLocalService{
         if (Objects.isNull(service)) {
             throw new DiscoveryServiceException("can't discovery service, service name:" +  serviceName);
         }
-        LOGGER.info("<<<<find service:{}", JSON.toJSONString(service));
+        LOGGER.info("<<<<found service:{}", JSON.toJSONString(service));
         String uri = request.getRequestURI();
-        LOGGER.info("remote service uri is:{}", uri);
         return buildLocalServiceUrl(service, uri);
     }
 
@@ -54,7 +52,8 @@ public class DiscoveryLocalServiceImpl implements DiscoveryLocalService{
      */
     private String buildLocalServiceUrl(ServiceProperty service, String gatewayUri) {
         String localServiceBindUrl = service.getServiceBindUrl();
-        String remoteUriSuffix = gatewayUri.substring(GatewayConstants.SERVICE_PREFIX.length(), gatewayUri.length());
+        String remoteUriSuffix =
+                gatewayUri.substring(GatewayConstants.SERVICE_PREFIX.length(), gatewayUri.length());
         return localServiceBindUrl + remoteUriSuffix;
     }
 

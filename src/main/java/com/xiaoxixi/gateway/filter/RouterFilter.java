@@ -5,6 +5,7 @@ import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 import com.xiaoxixi.gateway.constant.GatewayConstants;
 import com.xiaoxixi.gateway.discovery.DiscoveryLocalService;
+import com.xiaoxixi.gateway.exception.DiscoveryServiceException;
 import com.xiaoxixi.service.register.DiscoveryService;
 import com.xiaoxixi.service.register.ServiceProperty;
 import okhttp3.*;
@@ -110,6 +111,8 @@ public class RouterFilter extends ZuulFilter {
         } catch (IOException ioe) {
             LOGGER.error("route to host io exception:", ioe);
 //            this.helper.setResponse("502", "io exception".getBytes(), re);
+        } catch (DiscoveryServiceException dse) {
+            LOGGER.error("discovery service error:", dse);
         }
         return null;
     }
