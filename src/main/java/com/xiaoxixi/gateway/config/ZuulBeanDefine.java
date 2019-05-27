@@ -1,8 +1,11 @@
 package com.xiaoxixi.gateway.config;
 
+import com.xiaoxixi.gateway.constant.GatewayConstants;
 import com.xiaoxixi.service.register.DiscoveryService;
 import com.xiaoxixi.service.register.ServiceRegisterConfig;
+import okhttp3.OkHttpClient;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelper;
 import org.springframework.cloud.netflix.zuul.filters.Route;
 import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
 import org.springframework.context.annotation.Bean;
@@ -15,10 +18,10 @@ import java.util.List;
 @Configuration
 public class ZuulBeanDefine {
 
-    private static final Route route=  new Route("all_service",
-            "/**",
-            "",
-            "/api",
+    private static final Route route=  new Route(GatewayConstants.ALL_SERVICE_ID,
+            GatewayConstants.ALL_SERVICE_PATH,
+            "http://localhost:9005",
+            GatewayConstants.SERVICE_PREFIX,
             true,
             null
     );
@@ -49,5 +52,10 @@ public class ZuulBeanDefine {
                 return route;
             }
         };
+    }
+
+    @Bean
+    public OkHttpClient okHttpClient(){
+        return new OkHttpClient.Builder().build();
     }
 }

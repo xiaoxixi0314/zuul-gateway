@@ -1,11 +1,11 @@
 package com.xiaoxixi.gateway.filter;
 
-import com.fasterxml.jackson.annotation.JacksonAnnotationsInside;
+import com.alibaba.fastjson.JSON;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
+import com.xiaoxixi.gateway.constant.GatewayConstants;
 import com.xiaoxixi.service.register.DiscoveryService;
 import com.xiaoxixi.service.register.ServiceProperty;
-import com.xiaoxixi.service.register.ServiceRegisterConfig;
 import okhttp3.*;
 import okhttp3.internal.http.HttpMethod;
 import org.slf4j.Logger;
@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelper;
-//import org.springframework.cloud.netflix.zuul.filters.support.FilterConstants;
 import org.springframework.cloud.netflix.zuul.filters.support.FilterConstants;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
@@ -30,7 +29,6 @@ import java.util.Map;
 public class RouterFilter extends ZuulFilter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RouterFilter.class);
-
     private static final  ProxyRequestHelper helper = new ProxyRequestHelper();
 
     @Autowired
@@ -39,8 +37,8 @@ public class RouterFilter extends ZuulFilter {
     @Value("${register.service.prefix}")
     private String servicePrefix;
 
-    private static final OkHttpClient httpClient = new OkHttpClient.Builder().build();
-    private static final String SERVICE_NAME_HEADER = "X-request-to";
+    @Autowired
+    private OkHttpClient okHttpClient;
 
     @Override
     public String filterType() {
@@ -65,12 +63,18 @@ public class RouterFilter extends ZuulFilter {
 
             RequestContext context = RequestContext.getCurrentContext();
             HttpServletRequest request = context.getRequest();
-
+            Long startTime = System.currentTimeMillis();
             String method = request.getMethod();
-            String serviceName = request.getHeader(SERVICE_NAME_HEADER);
+            String serviceName = request.getHeader(GatewayConstants.SERVICE_NAME_HEADER);
+            LOGGER.info(">>>> start to discovery service, service name:{}", serviceName);
             ServiceProperty service = discoveryService.discoveryService(servicePrefix, serviceName);
-            String uri = this.helper.buildZuulRequestURI(request);
+            LOGGER.info("<<<<find service:{}", JSON.toJSONString(service));
+            String uri = request.getRequestURI();
+            LOGGER.info("remote service uri is:{}", uri);
+            String serviceUri = buildLocalServiceUrl(service, uri);
+            LOGGER.info("local service uri is:{},discovery service cost:{}ms", serviceUri, System.currentTimeMillis() - startTime);
 
+            startTime = System.currentTimeMillis();
             Headers.Builder headers = new Headers.Builder();
             Enumeration<String> headerNames = request.getHeaderNames();
             while (headerNames.hasMoreElements()) {
@@ -96,10 +100,10 @@ public class RouterFilter extends ZuulFilter {
 
             Request.Builder builder = new Request.Builder()
                     .headers(headers.build())
-                    .url(uri)
+                    .url(serviceUri)
                     .method(method, requestBody);
 
-            Response response = httpClient.newCall(builder.build()).execute();
+            Response response = okHttpClient.newCall(builder.build()).execute();
 
             LinkedMultiValueMap<String, String> responseHeaders = new LinkedMultiValueMap<>();
 
@@ -110,11 +114,24 @@ public class RouterFilter extends ZuulFilter {
             this.helper.setResponse(response.code(), response.body().byteStream(),
                     responseHeaders);
             context.setRouteHost(null); // prevent SimpleHostRoutingFilter from running
-
+            LOGGER.info("request cost:{}ms", System.currentTimeMillis() - startTime);
         } catch (IOException ioe) {
             LOGGER.error("route to host io exception:", ioe);
 //            this.helper.setResponse("502", "io exception".getBytes(), re);
         }
         return null;
+    }
+
+
+    /**
+     * build local service url
+     * @param service
+     * @param remoteUri
+     * @return
+     */
+    private String buildLocalServiceUrl(ServiceProperty service, String remoteUri) {
+        String localServiceBindUrl = service.getServiceBindUrl();
+        String remoteUriSuffix = remoteUri.substring(GatewayConstants.SERVICE_PREFIX.length(), remoteUri.length());
+        return localServiceBindUrl + remoteUriSuffix;
     }
 }
