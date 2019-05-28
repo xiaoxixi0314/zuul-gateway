@@ -1,6 +1,6 @@
-package com.xiaoxixi.gateway.limit;
+package com.xiaoxixi.gateway.service;
 
-import com.xiaoxixi.gateway.model.RequestTokenConfig;
+import com.xiaoxixi.gateway.service.model.RequestTokenConfig;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
@@ -9,9 +9,11 @@ import java.util.List;
  */
 public interface CurrentLimitingService {
 
-    boolean hasRequestToken(HttpServletRequest request);
+    boolean uriHasRequestToken(HttpServletRequest request);
 
     void configRequestTokenForUri(RequestTokenConfig config);
+
+    void configRequestTokenStrategy(RequestTokenConfig config);
 
     List<RequestTokenConfig> getAllRequestTokenConfig();
 

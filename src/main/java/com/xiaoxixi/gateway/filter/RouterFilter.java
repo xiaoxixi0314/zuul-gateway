@@ -1,19 +1,14 @@
 package com.xiaoxixi.gateway.filter;
 
-import com.alibaba.fastjson.JSON;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
-import com.xiaoxixi.gateway.constant.GatewayConstants;
-import com.xiaoxixi.gateway.discovery.DiscoveryLocalService;
+import com.xiaoxixi.gateway.service.DiscoveryLocalService;
 import com.xiaoxixi.gateway.exception.DiscoveryServiceException;
-import com.xiaoxixi.service.register.DiscoveryService;
-import com.xiaoxixi.service.register.ServiceProperty;
 import okhttp3.*;
 import okhttp3.internal.http.HttpMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.netflix.zuul.filters.ProxyRequestHelper;
 import org.springframework.cloud.netflix.zuul.filters.support.FilterConstants;
 import org.springframework.stereotype.Component;

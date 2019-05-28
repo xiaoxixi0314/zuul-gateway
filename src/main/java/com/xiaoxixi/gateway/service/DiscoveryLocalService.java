@@ -1,4 +1,4 @@
-package com.xiaoxixi.gateway.discovery;
+package com.xiaoxixi.gateway.service;
 
 import com.xiaoxixi.gateway.exception.DiscoveryServiceException;
 

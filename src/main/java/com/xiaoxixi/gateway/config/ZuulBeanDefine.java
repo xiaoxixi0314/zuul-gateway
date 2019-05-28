@@ -6,7 +6,6 @@ import com.xiaoxixi.service.register.ServiceRegisterConfig;
 import com.xiaoxixi.service.register.redis.RedisService;
 import okhttp3.OkHttpClient;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.cache.CacheProperties;
 import org.springframework.cloud.netflix.zuul.filters.Route;
 import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
 import org.springframework.context.annotation.Bean;

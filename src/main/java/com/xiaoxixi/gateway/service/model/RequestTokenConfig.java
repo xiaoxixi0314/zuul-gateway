@@ -1,12 +1,10 @@
-package com.xiaoxixi.gateway.model;
+package com.xiaoxixi.gateway.service.model;
 
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-@Builder(builderClassName = "ParamBuilder")
 public class RequestTokenConfig {
 
     /**

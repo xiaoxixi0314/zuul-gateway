@@ -7,9 +7,9 @@ import org.springframework.cloud.netflix.zuul.filters.support.FilterConstants;
 import org.springframework.stereotype.Component;
 
 @Component
-public class RateLimitedFilter  extends ZuulFilter{
+public class RouterPreFilter extends ZuulFilter{
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RateLimitedFilter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RouterPreFilter.class);
 
     @Override
     public String filterType(){

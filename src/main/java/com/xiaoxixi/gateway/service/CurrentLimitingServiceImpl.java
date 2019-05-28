@@ -1,9 +1,10 @@
-package com.xiaoxixi.gateway.limit;
+package com.xiaoxixi.gateway.service;
 
 import com.alibaba.fastjson.JSON;
 import com.xiaoxixi.gateway.constant.GatewayConstants;
 import com.xiaoxixi.gateway.exception.ParamsException;
-import com.xiaoxixi.gateway.model.RequestTokenConfig;
+import com.xiaoxixi.gateway.service.model.RequestTokenConfig;
+import com.xiaoxixi.gateway.util.UriUtils;
 import com.xiaoxixi.service.register.redis.RedisService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,12 +30,20 @@ public class CurrentLimitingServiceImpl implements CurrentLimitingService{
     private RedisService redisService;
 
     @Override
-    public boolean hasRequestToken(HttpServletRequest request){
-        String uri = request.getRequestURI().replaceAll("/", ":");
+    public boolean uriHasRequestToken(HttpServletRequest request){
+        String uri = UriUtils.uriSlashToColon(request.getRequestURI());
         String tokenKey = GatewayConstants.CURRENT_LIMITING_KEY_PREFIX + uri;
-
+        RequestTokenConfig tokenConfig = getRequestTokenConfig(request);
+        // 没有配置限流策略，则不限流
+        if (Objects.isNull(tokenConfig)) {
+            return true;
+        }
+        if (!redisService.exists(tokenKey)) {
+            configRequestTokenStrategy(tokenConfig);
+        }
         Long tokenCount = redisService.decr(tokenKey);
         if (tokenCount.longValue() < 0L) {
+            LOGGER.warn("request has no request token:{}", uri);
             return false;
         }
         return true;
@@ -47,8 +56,14 @@ public class CurrentLimitingServiceImpl implements CurrentLimitingService{
             throw new ParamsException("request token config can't be null");
         }
         String tokenConfigKey = GatewayConstants.CURRENT_LIMITING_CONFIG_KEY_PREFIX
-                + config.getUri().replaceAll("/" , ":");
+                + UriUtils.uriSlashToColon(config.getUri());
         redisService.set(tokenConfigKey, JSON.toJSONString(config));
+    }
+
+    @Override
+    public void configRequestTokenStrategy(RequestTokenConfig config){
+        String tokenStrategyKey = GatewayConstants.CURRENT_LIMITING_KEY_PREFIX + UriUtils.uriSlashToColon(config.getUri());
+        redisService.setnx(tokenStrategyKey, config.getTokenCount().toString(), config.getUnitTime());
     }
 
     @Override
@@ -72,7 +87,7 @@ public class CurrentLimitingServiceImpl implements CurrentLimitingService{
     public RequestTokenConfig getRequestTokenConfig(HttpServletRequest request){
         String uri = request.getRequestURI();
         String tokenConfigKey =
-                GatewayConstants.CURRENT_LIMITING_CONFIG_KEY_PREFIX + uri.replaceAll("/", ":");
+                GatewayConstants.CURRENT_LIMITING_CONFIG_KEY_PREFIX + UriUtils.uriSlashToColon(uri);
         String configJson = redisService.get(tokenConfigKey);
         if (StringUtils.isEmpty(configJson)) {
             return null;

@@ -1,4 +1,4 @@
-package com.xiaoxixi.gateway.discovery;
+package com.xiaoxixi.gateway.service;
 
 import com.alibaba.fastjson.JSON;
 import com.xiaoxixi.gateway.constant.GatewayConstants;
