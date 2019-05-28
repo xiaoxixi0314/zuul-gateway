@@ -2,6 +2,7 @@ package com.xiaoxixi.gateway.filter;
 
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
+import com.xiaoxixi.gateway.constant.GatewayConstants;
 import com.xiaoxixi.gateway.service.DiscoveryLocalService;
 import com.xiaoxixi.gateway.exception.DiscoveryServiceException;
 import okhttp3.*;
@@ -46,6 +47,7 @@ public class RouterFilter extends ZuulFilter {
 
     @Override
     public boolean shouldFilter() {
+
 //        return RequestContext.getCurrentContext().getRouteHost() != null
 //                && RequestContext.getCurrentContext().sendZuulResponse();
         return true;
@@ -54,13 +56,13 @@ public class RouterFilter extends ZuulFilter {
     @Override
     public Object run() {
         try {
-
+            LOGGER.info("===============enter route filter==============");
             RequestContext context = RequestContext.getCurrentContext();
             HttpServletRequest request = context.getRequest();
             String method = request.getMethod();
 
             // discovery service path
-            String serviceUri =discoveryLocalService.discoveryLocalService(request);
+            String serviceUri = discoveryLocalService.discoveryLocalService(request);
 
             Long startTime = System.currentTimeMillis();
             Headers.Builder headers = new Headers.Builder();

@@ -1,6 +1,6 @@
 package com.xiaoxixi.gateway.controller;
 
-import com.xiaoxixi.service.register.DiscoveryService;
+import com.xiaoxixi.gateway.service.DiscoveryLocalService;
 import com.xiaoxixi.service.register.ServiceProperty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,10 +14,14 @@ import java.util.List;
 public class ServicesController {
 
     @Autowired
-    private DiscoveryService discoveryService;
+    private DiscoveryLocalService discoveryLocalService;
 
+    /**
+     * 获取所有已注册的服务
+     * @return
+     */
     @GetMapping("/_all")
     public List<ServiceProperty> findAllServices(){
-        return discoveryService.discoveryAllServices();
+        return discoveryLocalService.discoveryAllLocalService();
     }
 }

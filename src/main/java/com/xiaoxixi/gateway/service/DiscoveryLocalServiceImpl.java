@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -44,6 +45,10 @@ public class DiscoveryLocalServiceImpl implements DiscoveryLocalService{
         return buildLocalServiceUrl(service, uri);
     }
 
+    @Override
+    public List<ServiceProperty> discoveryAllLocalService(){
+        return discoveryService.discoveryAllServices();
+    }
     /**
      * build local service url
      * @param service
