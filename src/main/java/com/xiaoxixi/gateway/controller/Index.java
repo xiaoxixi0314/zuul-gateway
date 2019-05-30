@@ -10,6 +10,6 @@ public class Index {
 
     @GetMapping("")
     public String index(){
-        return "zuul gateway index";
+        return "zuul gateway works";
     }
 }

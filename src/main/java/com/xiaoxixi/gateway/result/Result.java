@@ -2,6 +2,7 @@ package com.xiaoxixi.gateway.result;
 
 import lombok.Getter;
 import lombok.Setter;
+import okhttp3.internal.http2.ErrorCode;
 
 @Setter
 @Getter
@@ -35,6 +36,12 @@ public class Result<T> {
     public static <T> Result<T> error(StatusInfo errorInfo) {
         Result<T> result = new Result<>();
         result.result = StatusInfo.error(errorInfo.errorCode, errorInfo.errorMsg);
+        return result;
+    }
+
+    public static <T> Result<T> error(ErrorCodeEnum errorCodeEnum) {
+        Result<T> result = new Result<>();
+        result.result = StatusInfo.error(errorCodeEnum.getErrorCode(), errorCodeEnum.getErrorMessage());
         return result;
     }
 

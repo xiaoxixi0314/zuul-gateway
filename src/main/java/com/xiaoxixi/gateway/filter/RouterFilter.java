@@ -3,10 +3,13 @@ package com.xiaoxixi.gateway.filter;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 import com.xiaoxixi.gateway.constant.GatewayConstants;
+import com.xiaoxixi.gateway.result.ErrorCodeEnum;
 import com.xiaoxixi.gateway.service.DiscoveryLocalService;
 import com.xiaoxixi.gateway.exception.DiscoveryServiceException;
+import com.xiaoxixi.gateway.util.ResponseUtils;
 import okhttp3.*;
 import okhttp3.internal.http.HttpMethod;
+import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +18,6 @@ import org.springframework.cloud.netflix.zuul.filters.support.FilterConstants;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.StreamUtils;
-
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.InputStream;
@@ -47,20 +49,16 @@ public class RouterFilter extends ZuulFilter {
 
     @Override
     public boolean shouldFilter() {
-
-//        return RequestContext.getCurrentContext().getRouteHost() != null
-//                && RequestContext.getCurrentContext().sendZuulResponse();
-        return true;
+        RequestContext context = RequestContext.getCurrentContext();
+        return context.sendZuulResponse();
     }
 
     @Override
     public Object run() {
+        RequestContext context = RequestContext.getCurrentContext();
+        HttpServletRequest request = context.getRequest();
         try {
-            LOGGER.info("===============enter route filter==============");
-            RequestContext context = RequestContext.getCurrentContext();
-            HttpServletRequest request = context.getRequest();
             String method = request.getMethod();
-
             // discovery service path
             String serviceUri = discoveryLocalService.discoveryLocalService(request);
 
@@ -107,9 +105,11 @@ public class RouterFilter extends ZuulFilter {
             LOGGER.info("request cost:{}ms", System.currentTimeMillis() - startTime);
         } catch (IOException ioe) {
             LOGGER.error("route to host io exception:", ioe);
-//            this.helper.setResponse("502", "io exception".getBytes(), re);
         } catch (DiscoveryServiceException dse) {
             LOGGER.error("discovery service error:", dse);
+            ResponseUtils.buildBadResponse(context,
+                    HttpStatus.SC_SERVICE_UNAVAILABLE,
+                    ErrorCodeEnum.SERVICE_INVALID);
         }
         return null;
     }
