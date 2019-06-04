@@ -16,10 +16,4 @@ public class GatewayConstants {
 
     public static final String CURRENT_LIMITING_CONFIG_KEY_PREFIX = "current_limiting_config";
 
-    public static final String SHOULD_FILTER_HEADER_NAME = "_should_filter";
-
-    public static final String TRUE = "true";
-
-    public static final String FALSE = "false";
-
 }

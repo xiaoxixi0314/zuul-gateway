@@ -26,6 +26,12 @@ public class Result<T> {
         return result;
     }
 
+    public static <T> Result<T> error(String errMsg) {
+        Result<T> result = new Result<>();
+        result.result = StatusInfo.error("BIZ_ERROR", errMsg);
+        return result;
+    }
+
     public static <T> Result<T> error(T data,String errCode,String errMsg){
         Result<T> result = new Result<>();
         result.result = StatusInfo.error(errCode, errMsg);

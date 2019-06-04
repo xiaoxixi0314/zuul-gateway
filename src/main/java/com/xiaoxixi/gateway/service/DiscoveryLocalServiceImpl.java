@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.xiaoxixi.gateway.constant.GatewayConstants;
 import com.xiaoxixi.gateway.exception.DiscoveryServiceException;
 import com.xiaoxixi.gateway.exception.ParamsException;
+import com.xiaoxixi.gateway.service.model.ServiceWeightChangeRequest;
 import com.xiaoxixi.service.register.DiscoveryService;
 import com.xiaoxixi.service.register.ServiceProperty;
 import com.xiaoxixi.service.register.util.StringUtils;
@@ -34,11 +35,11 @@ public class DiscoveryLocalServiceImpl implements DiscoveryLocalService{
     public String discoveryLocalService(HttpServletRequest request) throws DiscoveryServiceException{
         String serviceName = request.getHeader(GatewayConstants.SERVICE_NAME_HEADER);
         if (StringUtils.isEmpty(serviceName)) {
-            throw new ParamsException("service name can't be null or empty, please check request has [X-request-to] header.");
+            throw new ParamsException("service name can't be null");
         }
         ServiceProperty service = discoveryService.discoveryService(servicePrefix, serviceName);
         if (Objects.isNull(service)) {
-            throw new DiscoveryServiceException("can't discovery service, service name:" +  serviceName);
+            throw new DiscoveryServiceException(String.format("can't find %s service", serviceName));
         }
         LOGGER.info("<<<<found service:{}", JSON.toJSONString(service));
         String uri = request.getRequestURI();
@@ -49,6 +50,17 @@ public class DiscoveryLocalServiceImpl implements DiscoveryLocalService{
     public List<ServiceProperty> discoveryAllLocalService(){
         return discoveryService.discoveryAllServices();
     }
+
+    @Override
+    public boolean changeServiceWeight(ServiceWeightChangeRequest request) throws DiscoveryServiceException{
+        if (Objects.isNull(request)
+                || StringUtils.isEmpty(request.getServiceKey())
+                || Objects.isNull(request.getWeight())) {
+            throw new ParamsException("change service weight params null");
+        }
+        return discoveryService.changeServcieWeight(request.getServiceKey(), request.getWeight());
+    }
+
     /**
      * build local service url
      * @param service

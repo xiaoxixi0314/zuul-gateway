@@ -1,6 +1,7 @@
 package com.xiaoxixi.gateway.service;
 
 import com.xiaoxixi.gateway.exception.DiscoveryServiceException;
+import com.xiaoxixi.gateway.service.model.ServiceWeightChangeRequest;
 import com.xiaoxixi.service.register.ServiceProperty;
 
 import javax.servlet.http.HttpServletRequest;
@@ -23,5 +24,10 @@ public interface DiscoveryLocalService {
      * @return
      */
     List<ServiceProperty> discoveryAllLocalService();
+
+    /**
+     * 设置服务权重
+     */
+    boolean changeServiceWeight(ServiceWeightChangeRequest request) throws DiscoveryServiceException;
 
 }
