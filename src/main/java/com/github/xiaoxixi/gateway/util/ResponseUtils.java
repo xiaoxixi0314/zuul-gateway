@@ -26,4 +26,24 @@ public class ResponseUtils {
         response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
     }
 
+    /**
+     * 组装错误的返回信息
+     * @param context
+     * @param statusCode
+     * @param errorCode
+     * @param errorMsg
+     */
+    public static void buildBadResponse(RequestContext context,
+                                        int statusCode,
+                                        String errorCode,
+                                        String errorMsg) {
+        context.setSendZuulResponse(false);
+        context.setResponseStatusCode(statusCode);
+        Result<Boolean> result = Result.error(errorCode, errorMsg);
+        context.setResponseBody(JSON.toJSONString(result));
+        HttpServletResponse response = context.getResponse();
+        response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
+
+    }
+
 }

@@ -11,20 +11,19 @@ import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 @Configuration
 public class ZuulBeanDefine {
 
-    private static final Route route=  new Route(GatewayConstants.ALL_SERVICE_ID,
+    private static final Set<String> ignoredHeaders = new HashSet<>();
+
+    private static final Route route =  new Route(GatewayConstants.ALL_SERVICE_ID,
             GatewayConstants.ALL_SERVICE_PATH,
             "http://localhost:9005",
             GatewayConstants.SERVICE_PREFIX,
             true,
-            null
-    );
+            ignoredHeaders);
 
     @Autowired
     private ServiceRegisterConfig serviceRegisterConfig;

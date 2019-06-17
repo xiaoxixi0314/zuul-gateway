@@ -1,6 +1,8 @@
 package com.github.xiaoxixi.gateway.filter;
 
 import com.github.xiaoxixi.gateway.result.ErrorCodeEnum;
+import com.github.xiaoxixi.gateway.result.Result;
+import com.github.xiaoxixi.gateway.service.AuthService;
 import com.github.xiaoxixi.gateway.util.ResponseUtils;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
@@ -25,6 +27,9 @@ public class RouterPreFilter extends ZuulFilter{
     @Autowired
     private CurrentLimitingService currentLimitingService;
 
+    @Autowired
+    private AuthService authService;
+
     @Override
     public String filterType(){
         return FilterConstants.PRE_TYPE;
@@ -44,9 +49,17 @@ public class RouterPreFilter extends ZuulFilter{
     public Object run(){
         RequestContext context = RequestContext.getCurrentContext();
         HttpServletRequest request = context.getRequest();
+        Result<Boolean> authRes = authService.checkAccessToken(request);
+        if(!authRes.getData()) {
+            ResponseUtils.buildBadResponse(context,
+                    HttpStatus.SC_UNAUTHORIZED,
+                    authRes.getResult().getErrorCode(),
+                    authRes.getResult().getErrorMsg());
+        }
+
         // 降级
         if (degradeService.isDegradeRequest(request)) {
-            LOGGER.warn("the service was degraded:{}", request.getRequestURI());
+            LOGGER.warn("the path was degraded:{}", request.getRequestURI());
             ResponseUtils.buildBadResponse(context,
                     HttpStatus.SC_BAD_GATEWAY,
                     ErrorCodeEnum.DEGRADE_REQUEST);
@@ -54,7 +67,7 @@ public class RouterPreFilter extends ZuulFilter{
         }
         // 限流
         if (!currentLimitingService.uriHasRequestToken(request)) {
-            LOGGER.warn("the service was current limited:{}", request.getRequestURI());
+            LOGGER.warn("the path was current limited:{}", request.getRequestURI());
             ResponseUtils.buildBadResponse(context,
                     HttpStatus.SC_GATEWAY_TIMEOUT,
                     ErrorCodeEnum.CURRENT_LIMIT_REQUEST);

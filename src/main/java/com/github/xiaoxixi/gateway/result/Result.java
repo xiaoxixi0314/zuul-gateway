@@ -3,10 +3,10 @@ package com.github.xiaoxixi.gateway.result;
 import lombok.Getter;
 import lombok.Setter;
 
-@Setter
 @Getter
 public class Result<T> {
 
+    @Setter
     private T data;
 
     private StatusInfo result;
