@@ -49,8 +49,9 @@ public class RouterPreFilter extends ZuulFilter{
     public Object run(){
         RequestContext context = RequestContext.getCurrentContext();
         HttpServletRequest request = context.getRequest();
+        // check access token
         Result<Boolean> authRes = authService.checkAccessToken(request);
-        if(!authRes.getData()) {
+        if(!authRes.getResult().isSuccess() || !authRes.getData()) {
             ResponseUtils.buildBadResponse(context,
                     HttpStatus.SC_UNAUTHORIZED,
                     authRes.getResult().getErrorCode(),
@@ -65,6 +66,7 @@ public class RouterPreFilter extends ZuulFilter{
                     ErrorCodeEnum.DEGRADE_REQUEST);
             return null;
         }
+
         // 限流
         if (!currentLimitingService.uriHasRequestToken(request)) {
             LOGGER.warn("the path was current limited:{}", request.getRequestURI());

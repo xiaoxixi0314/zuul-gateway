@@ -29,6 +29,9 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public Result<Boolean> checkAccessToken(HttpServletRequest request) {
+        if (LoginUtils.isIgnoreCheckAccessToken(request)) {
+            return Result.success(Boolean.TRUE);
+        }
         Cookie cookie = WebUtils.getCookie(request, GatewayConstants.TOKEN_COOKIE_NAME);
         if (Objects.isNull(cookie)) {
             return Result.error(ErrorCodeEnum.ILLEGAL_USER);
