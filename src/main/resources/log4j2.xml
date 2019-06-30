@@ -39,8 +39,7 @@
             <AppenderRef ref="MainLogRolling" />
         </Logger>
 
-        <Logger name="com.xiaoxixi.service.register" level="debug" additivity="false">
-            <AppenderRef ref="ConsoleAppender"/>
+        <Logger name="com.xiaoxixi.service.register" level="info" additivity="false">
             <AppenderRef ref="MainLogRolling" />
         </Logger>
 

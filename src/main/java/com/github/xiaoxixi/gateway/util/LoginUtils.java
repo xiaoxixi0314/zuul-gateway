@@ -7,7 +7,8 @@ import java.util.List;
 
 public class LoginUtils {
 
-    private static final List<String> IGNORE_TOKEN_URLS = Arrays.asList("/api/auth/login"
+    private static final List<String> IGNORE_TOKEN_URLS =
+            Arrays.asList("/api/auth/login"
             ,"/api/auth/refresh/token");
 
     public static boolean isIgnoreCheckAccessToken(HttpServletRequest request) {
